@@ -115,3 +115,60 @@ func (s *EventSuite) TestQualifiers(c *C) {
 	c.Assert(event.IsRecurrence(), Equals, true)
 	c.Assert(event.IsOverride(), Equals, true)
 }
+
+func (s *EventSuite) TestUnmarshal(c *C) {
+	raw := `
+BEGIN:VEVENT
+DTSTART;TZID=America/Los_Angeles:20151106T110000
+DTEND;TZID=America/Los_Angeles:20151106T113000
+DTSTAMP:20151117T211600Z
+ORGANIZER;CN=John Boiles:mailto:john@peer.com
+UID:rtmk2f1vvoprehiu2cq654991o@google.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=John B
+ oiles;X-NUM-GUESTS=0:mailto:john@peer.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=Se
+ an Chan;X-NUM-GUESTS=0:mailto:sean@peer.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;CN=St
+ even Chou;X-NUM-GUESTS=0:mailto:steven@peer.com
+RECURRENCE-ID;TZID=America/Los_Angeles:20151103T133000
+CREATED:20150615T205546Z
+DESCRIPTION:
+LAST-MODIFIED:20151117T211600Z
+LOCATION:
+SEQUENCE:2
+STATUS:CONFIRMED
+SUMMARY:1:1
+TRANSP:OPAQUE
+X-APPLE-TRAVEL-ADVISORY-BEHAVIOR:AUTOMATIC
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:This is an event reminder
+TRIGGER:-P0DT0H10M0S
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:This is an event reminder
+TRIGGER:-P0DT0H15M0S
+END:VALARM
+BEGIN:VALARM
+ACTION:NONE
+TRIGGER;VALUE=DATE-TIME:19760401T005545Z
+X-WR-ALARMUID:BA4450C6-B914-4BAD-857D-B9BA724A034D
+UID:BA4450C6-B914-4BAD-857D-B9BA724A034D
+ACKNOWLEDGED:20151106T193000Z
+END:VALARM
+END:VEVENT
+`
+
+	e := Event{}
+	err := icalendar.Unmarshal(raw, &e)
+	c.Assert(err, IsNil)
+	c.Assert(e.Summary, Equals, "1:1")
+	c.Assert(len(e.Attendees), Equals, 3)
+	c.Assert(e.Attendees[0].Entry.Name, Equals, "John Boiles")
+	c.Assert(e.Attendees[0].Entry.Address, Equals, "john@peer.com")
+	c.Assert(e.Attendees[1].Entry.Name, Equals, "Sean Chan")
+	c.Assert(e.Attendees[1].Entry.Address, Equals, "sean@peer.com")
+	c.Assert(e.Attendees[2].Entry.Name, Equals, "Steven Chou")
+	c.Assert(e.Attendees[2].Entry.Address, Equals, "steven@peer.com")
+}

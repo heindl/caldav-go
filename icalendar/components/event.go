@@ -78,7 +78,7 @@ type Event struct {
 	Attachment *values.Url `ical:"attach,omitempty"`
 
 	// defines an "Attendee" within a calendar component.
-	Attendees []*values.AttendeeContact `ical:",omitempty"`
+	Attendees []*values.AttendeeContact `ical:"ATTENDEE,omitempty"`
 
 	// defines the categories for a calendar component.
 	Categories *values.CSV `ical:",omitempty"`
@@ -128,6 +128,10 @@ func (e *Event) ValidateICalValue() error {
 // adds one or more recurrence rule to the event
 func (e *Event) AddRecurrenceRules(r ...*values.RecurrenceRule) {
 	e.RecurrenceRules = append(e.RecurrenceRules, r...)
+}
+
+func (e *Event) AddAttendees(a ...*values.AttendeeContact) {
+	e.Attendees = append(e.Attendees, a...)
 }
 
 // adds one or more recurrence rule exception to the event

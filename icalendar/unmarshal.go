@@ -62,15 +62,13 @@ func tokenizeSlice(slice []string, name ...string) (*token, error) {
 				}
 			}
 		} else if existing, ok := tok.properties[prop.Name]; ok {
-			tok.properties[prop.Name] = []*properties.Property{prop}
-		} else {
 			tok.properties[prop.Name] = append(existing, prop)
+		} else {
+			tok.properties[prop.Name] = []*properties.Property{prop}
 		}
-
 	}
 
 	return tok, nil
-
 }
 
 func hydrateInterface(v reflect.Value, prop *properties.Property) (bool, error) {
@@ -188,7 +186,8 @@ func hydrateProperty(v reflect.Value, prop *properties.Property) error {
 		if !voldval.CanSet() {
 			return utils.NewError(hydrateProperty, "unable to set array value", v, nil)
 		} else {
-			voldval.Set(reflect.Append(voldval, vnewval))
+			voldval.Set(reflect.Append(voldval, vnew))
+			return nil
 		}
 	} else if vlit {
 		// for literals, set the dereferenced value
